@@ -26,17 +26,17 @@ You can create summaries for the #chapter1 and #crazy tags. For instance, if you
 Summaries are added to a note by a code block with the add-summary identifier, and the tags are specified with the tags: label, as shown next.
 
 ```
-\`\`\`add-summary
+```add-summary
 tags: #chapter1
-\`\`\`
+```
 ```
 
 If you need to include blocks of texts with different tags, add the tags separated by a space, as shown next.
 
 ```
-\`\`\`add-summary
+```add-summary
 tags: #chapter1 #crazy
-\`\`\`
+```
 ```
 
 (The summary created by this last example would include the three paragraphs listed above)
