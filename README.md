@@ -1,73 +1,80 @@
-# Obsidian Sample Plugin
+# Tag Summary
 
-This is a sample plugin for Obsidian (https://obsidian.md).
+This is a plugin for [Obsidian](https://obsidian.md).
 
-This project uses Typescript to provide type checking and documentation.
-The repo depends on the latest plugin API (obsidian.d.ts) in Typescript Definition format, which contains TSDoc comments describing what it does.
+Tag Summary creates summaries with paragraphs or blocks of text that share the same tag. This plugin scans your files looking for blocks of text (text separated by empty lines) and creates a summary with all the blocks that contain the specified tag(s). For example, if you have the following paragraphs in your notes:
 
-**Note:** The Obsidian API is still in early alpha and is subject to change at any time!
+> Monsters are real, and ghosts are real too. They live inside us, and sometimes, they win.
+> #chapter1
 
-This sample plugin demonstrates some of the basic functionality the plugin API can do.
-- Changes the default font color to red using `styles.css`.
-- Adds a ribbon icon, which shows a Notice when clicked.
-- Adds a command "Open Sample Modal" which opens a Modal.
-- Adds a plugin setting tab to the settings page.
-- Registers a global click event and output 'click' to the console.
-- Registers a global interval which logs 'setInterval' to the console.
+> People think that I must be a very strange person. This is not correct. I have the heart of a small boy. It is in a glass jar on my desk.
+> #crazy
 
-## First time developing plugins?
+> Great minds discuss ideas; average minds discuss events; small minds discuss people.
+> #chapter1
 
-Quick starting guide for new plugin devs:
+You can create summaries for the #chapter1 and #crazy tags. For instance, if you create a summary with the #chapter1 tag, the first and third paragraphs will be included, but if you create a summary with the #crazy tag, only the second paragraph will be included.
 
-- Check if [someone already developed a plugin for what you want](https://obsidian.md/plugins)! There might be an existing plugin similar enough that you can partner up with.
-- Make a copy of this repo as a template with the "Use this template" button (login to GitHub if you don't see it).
-- Clone your repo to a local development folder. For convenience, you can place this folder in your `.obsidian/plugins/your-plugin-name` folder.
-- Install NodeJS, then run `npm i` in the command line under your repo folder.
-- Run `npm run dev` to compile your plugin from `main.ts` to `main.js`.
-- Make changes to `main.ts` (or create new `.ts` files). Those changes should be automatically compiled into `main.js`.
-- Reload Obsidian to load the new version of your plugin.
-- Enable plugin in settings window.
-- For updates to the Obsidian API run `npm update` in the command line under your repo folder.
+## Add a Summary to a Note
 
-## Releasing new releases
+Summaries are added to a note by a code block with the add-summary identifier, and the tags are specified with the tags: label, as shown next.
 
-- Update your `manifest.json` with your new version number, such as `1.0.1`, and the minimum Obsidian version required for your latest release.
-- Update your `versions.json` file with `"new-plugin-version": "minimum-obsidian-version"` so older versions of Obsidian can download an older version of your plugin that's compatible.
-- Create new GitHub release using your new version number as the "Tag version". Use the exact version number, don't include a prefix `v`. See here for an example: https://github.com/obsidianmd/obsidian-sample-plugin/releases
-- Upload the files `manifest.json`, `main.js`, `styles.css` as binary attachments. Note: The manifest.json file must be in two places, first the root path of your repository and also in the release.
-- Publish the release.
+> ```add-summary
+> tags: #chapter1
+> ```
 
-> You can simplify the version bump process by running `npm version patch`, `npm version minor` or `npm version major` after updating `minAppVersion` manually in `manifest.json`.
-> The command will bump version in `manifest.json` and `package.json`, and add the entry for the new version to `versions.json`
+If you need to include blocks of texts with different tags, add the tags separated by a space, as shown next.
 
-## Adding your plugin to the community plugin list
+> ```add-summary
+> tags: #chapter1 #crazy
+> ```
 
-- Check https://github.com/obsidianmd/obsidian-releases/blob/master/plugin-review.md
-- Publish an initial version.
-- Make sure you have a `README.md` file in the root of your repo.
-- Make a pull request at https://github.com/obsidianmd/obsidian-releases to add your plugin.
+(The summary created by this last example would include the three paragraphs listed above)
 
-## How to use
+## Command to Add a Summary
 
-- Clone this repo.
-- `npm i` or `yarn` to install dependencies
-- `npm run dev` to start compilation in watch mode.
+The plugin includes the Add Summary command to add a summary to a note.
 
-## Manually installing the plugin
+- Open the note where you want to include the summary.
+- Move the cursor to the position where you want to add the summary.
+- Press Command+P (Mac) or Control+P (Windows) to open the Command palette. 
+- Search for the Tag Summary: Add Summary command and click on it.
+- On the popup window, select the tag you want to use to create the summary and press the Add Summary button.
 
-- Copy over `main.js`, `styles.css`, `manifest.json` to your vault `VaultFolder/.obsidian/plugins/your-plugin-id/`.
+Now your note should include a code block like the examples above. The Add Summary command allows you to select only one tag, but you can manually add all the tags you want separated by a space, as in tags: #chapter1 #chapter2.
 
-## Improve code quality with eslint (optional)
-- [ESLint](https://eslint.org/) is a tool that analyzes your code to quickly find problems. You can run ESLint against your plugin to find common bugs and ways to improve your code. 
-- To use eslint with this project, make sure to install eslint from terminal:
-  - `npm install -g eslint`
-- To use eslint to analyze this project use this command:
-  - `eslint main.ts`
-  - eslint will then create a report with suggestions for code improvement by file and line number.
-- If your source code is in a folder, such as `src`, you can use eslint with this command to analyze all files in that folder:
-  - `eslint .\src\`
+## Summary Configuration
+
+The plugin includes three options for configuration.
+
+- Show Callouts: Shows each block of text inside a callout box (default). If disabled, the blocks are shown as plain text.
+- Show Link: Includes a link to open the note where the paragraph was taken from.
+- Remove Tags: Removes the original tags from the text.
+
+## Usage
+
+This plugin does not affect the way Obsidian, links, and tags work. You can still organize your notes the way you always do, but now you can assign a tag to a paragraph or a block of text and then create summaries with all the paragraphs in your notes that include that specific tag.
+
+When structuring your notes, please consider the following:
+
+- The plugin considers a block of text to be all the text between empty lines. If you add an empty line in the middle of a paragraph or a block of text, the plugin will consider that as two different blocks.
+- Tags can be specified in any position of the paragraph or block of text, even in a new line at the end, as long as there are no empty lines in between.
+
+## Safety
+
+This plugin does not modify the original notes, it doesn't download or upload any information to the web, and doesn't store or retrieve any private information.
+
+## Disclaimer
+
+This plugin comes with no guarantee of any kind, and neither the author nor Obsidian are responsible for any loss of data or inconvenience.
+Use this plugin at your own risk.
+
+## From the Author
+
+I've created this plugin for personal use. I will try to post updates once in a while. If you find a bug, you can contact me from my website.
+[www.jdgauchat.com](https://www.jdgauchat.com/)
+
+If you enjoy this plugin and want to support my work, you can buy me a coffee!
+<a href="https://www.buymeacoffee.com/JDGauchat" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
 
 
-## API Documentation
-
-See https://github.com/obsidianmd/obsidian-api
