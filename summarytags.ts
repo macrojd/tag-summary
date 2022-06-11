@@ -16,6 +16,7 @@ export class SummaryModal extends Modal {
         // Load tags
         let listTags: string[] = [];
         let listFiles = this.app.vault.getMarkdownFiles();
+
         listFiles.forEach((file) => {
             const cache = app.metadataCache.getFileCache(file);
             listTags = listTags.concat(getAllTags(cache));

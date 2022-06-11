@@ -1,7 +1,5 @@
 
-// Only tags
-import { match } from 'assert';
-import { Editor, Plugin, MarkdownRenderer, getAllTags } from 'obsidian';
+import { Editor, Plugin, MarkdownRenderer, getAllTags, TFile } from 'obsidian';
 import { SummarySettingTab } from "./settings";
 import { SummaryModal } from "./summarytags";
 
@@ -133,6 +131,7 @@ export default class SummaryPlugin extends Plugin {
 				// Remove files that do not contain the tags selected by the user
 				const cache = app.metadataCache.getFileCache(file);
 				const tagsInFile = getAllTags(cache);
+
 				if (validTags.some((value) => tagsInFile.includes(value))) {
 					return true;
 				}
@@ -152,11 +151,7 @@ export default class SummaryPlugin extends Plugin {
 		});
 
 		// Get files content
-		const listContents = await Promise.all(
-			listFiles.map(
-				async (file) => [file, await app.vault.cachedRead(file)] as const,
-			),
-		);
+		let listContents: [TFile, string][] = await this.readFiles(listFiles);
 
 		// Create summary
 		let summary: string = "";
@@ -172,7 +167,7 @@ export default class SummaryPlugin extends Plugin {
 				const valid = this.isValid(listTags, tags, include, exclude);
 
 				if (valid) {
-					// Restore new line at the end
+					// Restore newline at the end
 					paragraph += "\n";
 
 					// Remove tags from blocks
@@ -213,6 +208,17 @@ export default class SummaryPlugin extends Plugin {
 		} else {
 			this.createEmptySummary(element);
 		}
+	}
+
+	// Read Files
+	async readFiles(listFiles: TFile[]): Promise<[TFile, string][]> {
+		let list: [TFile, string][] = [];
+		for (let t = 0; t < listFiles.length; t += 1) {
+			const file = listFiles[t];
+			let content = await this.app.vault.cachedRead(file);
+			list.push([file, content]);
+		}
+		return list;
 	}
 
 	// Check if tags are valid
