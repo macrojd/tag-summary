@@ -82,7 +82,7 @@ After this, your note should include a code block like the examples above. The A
 
 The plugin includes three options for configuration.
 
-- Show Callouts: Shows each block of text inside a callout box (default). If disabled, the blocks are shown as plain text.
+- Show Callouts: Shows each block of text inside a callout box (default). If disabled, the blocks are displayed as plain text.
 - Show Link: Includes a link at the top to open the note where the paragraph was taken from.
 - Remove Tags: Removes the original tags from the text.
 
