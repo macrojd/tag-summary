@@ -108,6 +108,7 @@ export default class SummaryPlugin extends Plugin {
 			}
 		});  
 	}
+
 	// Show empty summary when the tags are not found
 	createEmptySummary(element: HTMLElement) {
 		const container = createEl("div");
@@ -117,6 +118,7 @@ export default class SummaryPlugin extends Plugin {
 		});
 		element.replaceWith(container);
 	}
+
 	// Load the blocks and create the summary
 	async createSummary(element: HTMLElement, tags: string[], include: string[], exclude: string[], filePath: string) {
 		const validTags = tags.concat(include); // All the tags selected by the user
@@ -163,9 +165,14 @@ export default class SummaryPlugin extends Plugin {
 			// Get process each block of text
 			const block = item[1].split(/\n\s*\n/).filter((row) => row.trim().length > 0);
 			block.forEach((paragraph) => {
+				// Check if the paragraph is valid
+				let valid = false;
 				const listTags = paragraph.match(/#[a-zA-Z0-9_\-/#]+/g);
-				const valid = this.isValid(listTags, tags, include, exclude);
+				if (listTags != null && listTags.length > 0) {
+					valid = this.isValidText(listTags, tags, include, exclude);
+				}
 
+				// If valid, include the paragraph in the summary
 				if (valid) {
 					// Restore newline at the end
 					paragraph += "\n";
@@ -222,7 +229,7 @@ export default class SummaryPlugin extends Plugin {
 	}
 
 	// Check if tags are valid
-	isValid(listTags: string[], tags: string[], include: string[], exclude: string[]): boolean {
+	isValidText(listTags: string[], tags: string[], include: string[], exclude: string[]): boolean {
 		let valid = true;
 
 		// Check OR (tags)
