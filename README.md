@@ -72,8 +72,8 @@ The plugin includes the Add Summary command to add a summary to a note.
 
 - Open the note where you want to include the summary.
 - Move the cursor to the position where you want to add the summary.
-- Press Command+P (Mac) or Control+P (Windows) to open the Command palette. 
-- Search for the Tag Summary: Add Summary command and click on it.
+- Press Command+P (Mac) or Control+P (Windows) to open the Command palette. (or drag down the note on a mobile device)
+- Search for the **Tag Summary: Add Summary** command and click on it.
 - On the popup window, select the tags you want to include and exclude to create the summary and press the Add Summary button.
 
 After this, your note should include a code block like the examples above. The Add Summary command allows you to select only one tag to include and another to exclude, but you can manually add all the tags you want separated by a space, as in **tags: #chapter1 #chapter2**.

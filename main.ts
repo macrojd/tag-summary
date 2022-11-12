@@ -128,15 +128,12 @@ export default class SummaryPlugin extends Plugin {
 
 		// Filter files
 		listFiles = listFiles.filter((file) => {
-			// Do not process host file
-			if (file.path != filePath) {
-				// Remove files that do not contain the tags selected by the user
-				const cache = app.metadataCache.getFileCache(file);
-				const tagsInFile = getAllTags(cache);
+			// Remove files that do not contain the tags selected by the user
+			const cache = app.metadataCache.getFileCache(file);
+			const tagsInFile = getAllTags(cache);
 
-				if (validTags.some((value) => tagsInFile.includes(value))) {
-					return true;
-				}
+			if (validTags.some((value) => tagsInFile.includes(value))) {
+				return true;
 			}
 			return false;
         });
@@ -169,7 +166,10 @@ export default class SummaryPlugin extends Plugin {
 				let valid = false;
 				const listTags = paragraph.match(/#[a-zA-Z0-9_\-/#]+/g);
 				if (listTags != null && listTags.length > 0) {
-					valid = this.isValidText(listTags, tags, include, exclude);
+					// Do not process plugins
+					if (!paragraph.contains("```")) {
+						valid = this.isValidText(listTags, tags, include, exclude);
+					}
 				}
 
 				// If valid, include the paragraph in the summary
