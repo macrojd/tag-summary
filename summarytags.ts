@@ -45,7 +45,7 @@ export class SummaryModal extends Modal {
                     menu.setValue(listTags[0]);
                     menu.onChange((value) => {
                         this.include = value;
-                    });
+                    }); 
                 });
 
             this.exclude = tagsToExclude[0];
@@ -72,7 +72,6 @@ export class SummaryModal extends Modal {
                 })
         }
     }
-
     onClose() {
         let { contentEl } = this;
         contentEl.empty();
