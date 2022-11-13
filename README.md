@@ -95,6 +95,11 @@ When structuring your notes, please consider the following:
 - The plugin considers a block of text to be all the text between empty lines. If you add an empty line in the middle of a paragraph or a block of text, the plugin will consider that as two different blocks.
 - Tags can be specified in any position of the paragraph or block of text, even in a new line at the end, as long as there are no empty lines in between.
 
+## Known Issues
+
+The plugin only recognizes tags with letters and numbers from the Latin alphabet: a to z, A to Z, and 0 to 9. 
+
+
 ## Safety
 
 This plugin does not modify the original notes, it doesn't download or upload any information to the web, and doesn't store or retrieve any private information.
