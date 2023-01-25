@@ -54,13 +54,13 @@ export default class SummaryPlugin extends Plugin {
 			const rows = source.split("\n").filter((row) => row.length > 0);
 			rows.forEach((line) => {
 				// Check if the line specifies the tags (OR)
-				if (line.match(/^\s*tags:[a-zA-Z0-9_\-/# ]+$/g)) {
+				if (line.match(/^\s*tags:[\p{L}0-9_\-/# ]+$/gu)) {
 					const content = line.replace(/^\s*tags:/, "").trim();
 
 					// Get the list of valid tags and assign them to the tags variable
 					let list = content.split(/\s+/).map((tag) => tag.trim());
 					list = list.filter((tag) => {
-						if (tag.match(/^#[a-zA-Z]+[^#]*$/)) {
+						if (tag.match(/^#[\p{L}]+[^#]*$/u)) {
 							return true;
 						} else {
 							return false;
@@ -69,13 +69,13 @@ export default class SummaryPlugin extends Plugin {
 					tags = list;
 				}
 				// Check if the line specifies the tags to include (AND)
-				if (line.match(/^\s*include:[a-zA-Z0-9_\-/# ]+$/g)) {
+				if (line.match(/^\s*include:[\p{L}0-9_\-/# ]+$/gu)) {
 					const content = line.replace(/^\s*include:/, "").trim();
 
 					// Get the list of valid tags and assign them to the include variable
 					let list = content.split(/\s+/).map((tag) => tag.trim());
 					list = list.filter((tag) => {
-						if (tag.match(/^#[a-zA-Z]+[^#]*$/)) {
+						if (tag.match(/^#[\p{L}]+[^#]*$/u)) {
 							return true;
 						} else {
 							return false;
@@ -84,13 +84,13 @@ export default class SummaryPlugin extends Plugin {
 					include = list;
 				}
 				// Check if the line specifies the tags to exclude (NOT)
-				if (line.match(/^\s*exclude:[a-zA-Z0-9_\-/# ]+$/g)) {
+				if (line.match(/^\s*exclude:[\p{L}0-9_\-/# ]+$/gu)) {
 					const content = line.replace(/^\s*exclude:/, "").trim();
 
 					// Get the list of valid tags and assign them to the exclude variable
 					let list = content.split(/\s+/).map((tag) => tag.trim());
 					list = list.filter((tag) => {
-						if (tag.match(/^#[a-zA-Z]+[^#]*$/)) {
+						if (tag.match(/^#[\p{L}]+[^#]*$/u)) {
 							return true;
 						} else {
 							return false;
@@ -164,7 +164,7 @@ export default class SummaryPlugin extends Plugin {
 			block.forEach((paragraph) => {
 				// Check if the paragraph is valid
 				let valid = false;
-				const listTags = paragraph.match(/#[a-zA-Z0-9_\-/#]+/g);
+				const listTags = paragraph.match(/#[\p{L}0-9_\-/#]+/gu);
 				if (listTags != null && listTags.length > 0) {
 					// Do not process plugins
 					if (!paragraph.contains("```")) {
@@ -179,7 +179,7 @@ export default class SummaryPlugin extends Plugin {
 
 					// Remove tags from blocks
 					if (this.settings.removetags) {
-						paragraph = paragraph.replace(/#[a-zA-Z0-9_\-/#]+/g, "");
+						paragraph = paragraph.replace(/#[\p{L}0-9_\-/#]+/gu, "");
 					}
 
 					// Add link to original note
