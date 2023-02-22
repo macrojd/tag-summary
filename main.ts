@@ -7,11 +7,15 @@ interface SummarySettings {
 	includecallout: boolean;
 	includelink: boolean;
 	removetags: boolean;
+	listparagraph: boolean;
+	includechildren: boolean;
 }
 const DEFAULT_SETTINGS: Partial<SummarySettings> = {
 	includecallout: true,
 	includelink: true,
 	removetags: false,
+	listparagraph: true,
+	includechildren: true,
 };
 export default class SummaryPlugin extends Plugin {
 	settings: SummarySettings;
@@ -161,21 +165,54 @@ export default class SummaryPlugin extends Plugin {
 
 			// Get process each block of text
 			const block = item[1].split(/\n\s*\n/).filter((row) => row.trim().length > 0);
+
 			block.forEach((paragraph) => {
-				// Check if the paragraph is valid
-				let valid = false;
-				const listTags = paragraph.match(/#[a-zA-Z0-9_\-/#]+/g);
-				if (listTags != null && listTags.length > 0) {
-					// Do not process plugins
-					if (!paragraph.contains("```")) {
-						valid = this.isValidText(listTags, tags, include, exclude);
+				// Function to check if the paragraph is valid
+				const checkParagraphValid = (paragraph: string) => {
+					let valid = false;
+					const listTags = paragraph.match(/#[a-zA-Z0-9_\-/#]+/g);
+					if (listTags != null && listTags.length > 0) {
+						// Do not process plugins
+						if (!paragraph.contains("```")) {
+							valid = this.isValidText(listTags, tags, include, exclude);
+						}
 					}
-				}
+					return valid;
+				};
+				
 
 				// If valid, include the paragraph in the summary
-				if (valid) {
+				if (checkParagraphValid(paragraph)) {
 					// Restore newline at the end
 					paragraph += "\n";
+
+					if (this.settings.listparagraph) {
+						// Pre-process
+						let processed = '';
+						let currentLevel = Number.MAX_VALUE;
+						paragraph.split('\n').forEach((line) => {
+							const isList = line.trimStart().startsWith('- ');
+							if (isList) {
+								const startingSpaces = line.search(/\S/);
+								if (checkParagraphValid(line)) {
+									currentLevel = startingSpaces;
+									// Slice the starting spaces to make the list item
+									// start on the first indentation level. If we don't
+									// do this, Obsidian gets confused and puts all the
+									// list items (including the children) on the same
+									// level. 
+									processed += line.slice(currentLevel) + '\n';
+								} else if (this.settings.includechildren && currentLevel < startingSpaces) {
+									// If currentLevel < startingSpaces, this is a child.
+									processed += line.slice(currentLevel) + '\n';
+								} else if (currentLevel >= startingSpaces) {
+									// We are now out of the level with the tag.
+									currentLevel = Number.MAX_VALUE;
+								}
+							}
+						})
+						paragraph = processed;
+					}
 
 					// Remove tags from blocks
 					if (this.settings.removetags) {

@@ -47,5 +47,27 @@ export class SummarySettingTab extends PluginSettingTab {
                 await this.plugin.saveSettings();
             })
         );
+        new Setting(containerEl)
+        .setName("List Items As Paragraphs")
+        .setDesc("Treat list items as a individual paragraphs, and only include the items that contains the tag")
+        .addToggle((toggle) =>
+            toggle
+            .setValue(this.plugin.settings.listparagraph)
+            .onChange(async (value) => {
+                this.plugin.settings.listparagraph = value;
+                await this.plugin.saveSettings();
+            })
+        );
+        new Setting(containerEl)
+        .setName("Include Child List Items")
+        .setDesc("Also include child items of a list item.")
+        .addToggle((toggle) =>
+            toggle
+            .setValue(this.plugin.settings.includechildren)
+            .onChange(async (value) => {
+                this.plugin.settings.includechildren = value;
+                await this.plugin.saveSettings();
+            })
+        );
     }
 }
