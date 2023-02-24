@@ -1,4 +1,5 @@
 
+import { Console } from 'console';
 import { Editor, Plugin, MarkdownRenderer, getAllTags, TFile } from 'obsidian';
 import { SummarySettingTab } from "./settings";
 import { SummaryModal } from "./summarytags";
@@ -7,11 +8,15 @@ interface SummarySettings {
 	includecallout: boolean;
 	includelink: boolean;
 	removetags: boolean;
+	listparagraph: boolean;
+ 	includechildren: boolean;
 }
 const DEFAULT_SETTINGS: Partial<SummarySettings> = {
 	includecallout: true,
 	includelink: true,
 	removetags: false,
+	listparagraph: true,
+ 	includechildren: true,
 };
 export default class SummaryPlugin extends Plugin {
 	settings: SummarySettings;
@@ -54,13 +59,13 @@ export default class SummaryPlugin extends Plugin {
 			const rows = source.split("\n").filter((row) => row.length > 0);
 			rows.forEach((line) => {
 				// Check if the line specifies the tags (OR)
-				if (line.match(/^\s*tags:[a-zA-Z0-9_\-/# ]+$/g)) {
+				if (line.match(/^\s*tags:[\p{L}0-9_\-/# ]+$/gu)) {
 					const content = line.replace(/^\s*tags:/, "").trim();
 
 					// Get the list of valid tags and assign them to the tags variable
 					let list = content.split(/\s+/).map((tag) => tag.trim());
 					list = list.filter((tag) => {
-						if (tag.match(/^#[a-zA-Z]+[^#]*$/)) {
+						if (tag.match(/^#[\p{L}]+[^#]*$/u)) {
 							return true;
 						} else {
 							return false;
@@ -69,13 +74,13 @@ export default class SummaryPlugin extends Plugin {
 					tags = list;
 				}
 				// Check if the line specifies the tags to include (AND)
-				if (line.match(/^\s*include:[a-zA-Z0-9_\-/# ]+$/g)) {
+				if (line.match(/^\s*include:[\p{L}0-9_\-/# ]+$/gu)) {
 					const content = line.replace(/^\s*include:/, "").trim();
 
 					// Get the list of valid tags and assign them to the include variable
 					let list = content.split(/\s+/).map((tag) => tag.trim());
 					list = list.filter((tag) => {
-						if (tag.match(/^#[a-zA-Z]+[^#]*$/)) {
+						if (tag.match(/^#[\p{L}]+[^#]*$/u)) {
 							return true;
 						} else {
 							return false;
@@ -84,13 +89,13 @@ export default class SummaryPlugin extends Plugin {
 					include = list;
 				}
 				// Check if the line specifies the tags to exclude (NOT)
-				if (line.match(/^\s*exclude:[a-zA-Z0-9_\-/# ]+$/g)) {
+				if (line.match(/^\s*exclude:[\p{L}0-9_\-/# ]+$/gu)) {
 					const content = line.replace(/^\s*exclude:/, "").trim();
 
 					// Get the list of valid tags and assign them to the exclude variable
 					let list = content.split(/\s+/).map((tag) => tag.trim());
 					list = list.filter((tag) => {
-						if (tag.match(/^#[a-zA-Z]+[^#]*$/)) {
+						if (tag.match(/^#[\p{L}]+[^#]*$/u)) {
 							return true;
 						} else {
 							return false;
@@ -159,51 +164,103 @@ export default class SummaryPlugin extends Plugin {
 			const fileName = item[0].name.replace(/.md$/g, "");
 			const filePath = item[0].path;
 
-			// Get process each block of text
-			const block = item[1].split(/\n\s*\n/).filter((row) => row.trim().length > 0);
-			block.forEach((paragraph) => {
-				// Check if the paragraph is valid
+			// Get paragraphs
+			let listParagraphs: string[] = Array();
+			const blocks = item[1].split(/\n\s*\n/).filter((row) => row.trim().length > 0);
+
+			// Get list items
+			blocks.forEach((paragraph) => {
+				// Check if the paragraph is another plugin
 				let valid = false;
-				const listTags = paragraph.match(/#[a-zA-Z0-9_\-/#]+/g);
+				let listTags = paragraph.match(/#[\p{L}0-9_\-/#]+/gu);
+
 				if (listTags != null && listTags.length > 0) {
-					// Do not process plugins
 					if (!paragraph.contains("```")) {
 						valid = this.isValidText(listTags, tags, include, exclude);
 					}
 				}
-
-				// If valid, include the paragraph in the summary
 				if (valid) {
-					// Restore newline at the end
-					paragraph += "\n";
-
-					// Remove tags from blocks
-					if (this.settings.removetags) {
-						paragraph = paragraph.replace(/#[a-zA-Z0-9_\-/#]+/g, "");
-					}
-
-					// Add link to original note
-					if (this.settings.includelink) {
-						paragraph = "**Source:** [[" + filePath + "|" + fileName + "]]\n" + paragraph;
-					}
-
-					// Insert the text in a callout
-					if (this.settings.includecallout) {
-						// Insert the text in a callout box
-						let callout = "> [!" + fileName + "]\n";
-						const rows = paragraph.split("\n");
-						rows.forEach((row) => {
-							callout += "> " + row + "\n";
-						});
-						paragraph = callout + "\n\n";
+					if (!this.settings.listparagraph) {
+						// Add all paragraphs
+						listParagraphs.push(paragraph);
 					} else {
-						// No Callout
-						paragraph += "\n\n";
-					}
+						// Add paragraphs and the items of a list
+						let listText = "";
 
-					// Add to Summary
-					summary += paragraph;
+						paragraph.split('\n').forEach((line) => {
+							let isList = false;
+							isList = line.search(/(\s*[\-\+\*]){1}|([0-9]\.){1}\s+/) != -1
+	
+							if (!isList) {
+								// Add normal paragraphs
+								listParagraphs.push(line);
+								listText = "";
+							} else {
+								// Get the item's level
+								let level = 0;
+								const endIndex = line.search(/[\-\+\*]{1}|([0-9]\.){1}\s+/);
+								const tabText = line.slice(0, endIndex);
+								const tabs = tabText.match(/\t/g);
+								if (tabs) {
+									level = tabs.length;
+								}
+
+								// Add item
+								if (level == 0) {
+									if (listText != "") {
+										listParagraphs.push(listText);
+										listText = "";
+									}
+									listTags = line.match(/#[\p{L}0-9_\-/#]+/gu);
+									if (listTags != null && listTags.length > 0) {
+										if (this.isValidText(listTags, tags, include, exclude)) {
+											listText = listText.concat(line + "\n");
+										}
+									}
+								} else if (this.settings.includechildren && level > 0 && listText != "") {
+									listText = listText.concat(line + "\n");
+								}
+							}
+						});
+						if (listText != "") {
+							listParagraphs.push(listText);
+							listText = "";
+						}
+ 					}
 				}
+			})
+
+			// Process each block of text
+			listParagraphs.forEach((paragraph) => {
+				// Restore newline at the end
+				paragraph += "\n";
+				
+				// Remove tags from blocks
+				if (this.settings.removetags) {
+					paragraph = paragraph.replace(/#[\p{L}0-9_\-/#]+/gu, "");
+				}
+
+				// Add link to original note
+				if (this.settings.includelink) {
+					paragraph = "**Source:** [[" + filePath + "|" + fileName + "]]\n" + paragraph;
+				}
+
+				// Insert the text in a callout
+				if (this.settings.includecallout) {
+					// Insert the text in a callout box
+					let callout = "> [!" + fileName + "]\n";
+					const rows = paragraph.split("\n");
+					rows.forEach((row) => {
+						callout += "> " + row + "\n";
+					});
+					paragraph = callout + "\n\n";
+				} else {
+					// No Callout
+					paragraph += "\n\n";
+				}
+
+				// Add to Summary
+				summary += paragraph;
 			});
 		});
 

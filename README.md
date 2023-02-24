@@ -80,25 +80,25 @@ After this, your note should include a code block like the examples above. The A
 
 ## Summary Configuration
 
-The plugin includes three options for configuration.
+The plugin includes the following three options to configure the style of the summary.
 
 - Show Callouts: Shows each block of text inside a callout box (default). If disabled, the blocks are displayed as plain text.
 - Show Link: Includes a link at the top to open the note where the paragraph was taken from.
 - Remove Tags: Removes the original tags from the text.
 
+There are also two more options to determine how the plugin will process lists. If the options are enabled, the plugin will process each item of a list independently and include in the summary only the items that match the tags. If you want the plugin to process the entire list as a block of text, you can disable this options.
+
+- List Items: Include only the items of a list that contain the tag(s), not the entire list.
+- Include Child Items: Include the child items of a list item that contains the tag(s).
+
 ## Usage
 
-This plugin does not affect the way Obsidian, links, and tags work. You can still organize your notes the way you always do, but now you can assign tags to paragraphs or blocks of text and then create summaries with those that include a specific list of tags.
+This plugin does not affect the way Obsidian, links, and tags work. You can still organize your notes the way you always do, but now you can assign tags to paragraphs, blocks of text, or items on a list, and then create summaries with those that include a specific list of tags.
 
 When structuring your notes, please consider the following:
 
 - The plugin considers a block of text to be all the text between empty lines. If you add an empty line in the middle of a paragraph or a block of text, the plugin will consider that as two different blocks.
 - Tags can be specified in any position of the paragraph or block of text, even in a new line at the end, as long as there are no empty lines in between.
-
-## Known Issues
-
-The plugin only recognizes tags with letters and numbers from the Latin alphabet: a to z, A to Z, and 0 to 9. 
-
 
 ## Safety
 
@@ -111,10 +111,6 @@ Use this plugin at your own risk.
 
 ## From the Author
 
-I've created this plugin for personal use. I will try to post updates once in a while. If you find a bug, you can contact me from my website:
+I created this plugin for personal use. I will try to post updates from time to time. If you find a bug, you can contact me through my website:
 [www.jdgauchat.com](https://www.jdgauchat.com/)
-
-If you enjoy this plugin and want to support my work, you can buy me a coffee!
-
-<a href="https://www.buymeacoffee.com/JDGauchat" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
 
