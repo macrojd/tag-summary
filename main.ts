@@ -185,16 +185,17 @@ export default class SummaryPlugin extends Plugin {
 						listParagraphs.push(paragraph);
 					} else {
 						// Add paragraphs and the items of a list
-						let listText = "";
+						let listItems: string[] = Array();
+						let itemText = "";
 
-						paragraph.split('\n').forEach((line) => {
+						paragraph.split('\n\s*\n').forEach((line) => {
 							let isList = false;
 							isList = line.search(/(\s*[\-\+\*]){1}|([0-9]\.){1}\s+/) != -1
 	
 							if (!isList) {
 								// Add normal paragraphs
 								listParagraphs.push(line);
-								listText = "";
+								itemText = "";
 							} else {
 								// Get the item's level
 								let level = 0;
@@ -204,28 +205,32 @@ export default class SummaryPlugin extends Plugin {
 								if (tabs) {
 									level = tabs.length;
 								}
-
-								// Add item
+								// Get items tree
 								if (level == 0) {
-									if (listText != "") {
-										listParagraphs.push(listText);
-										listText = "";
+									if (itemText != "") {
+										listItems.push(itemText);
+										itemText = "";
 									}
-									listTags = line.match(/#[\p{L}0-9_\-/#]+/gu);
-									if (listTags != null && listTags.length > 0) {
-										if (this.isValidText(listTags, tags, include, exclude)) {
-											listText = listText.concat(line + "\n");
-										}
-									}
-								} else if (this.settings.includechildren && level > 0 && listText != "") {
-									listText = listText.concat(line + "\n");
+									itemText = itemText.concat(line + "\n");
+								} else if (this.settings.includechildren && level > 0 && itemText != "") {
+									itemText = itemText.concat(line + "\n");
 								}
 							}
 						});
-						if (listText != "") {
-							listParagraphs.push(listText);
-							listText = "";
+						if (itemText != "") {
+							listItems.push(itemText);
+							itemText = "";
 						}
+
+						// Check tags on the items
+						listItems.forEach((line) => {
+							listTags = line.match(/#[\p{L}0-9_\-/#]+/gu);
+							if (listTags != null && listTags.length > 0) {
+								if (this.isValidText(listTags, tags, include, exclude)) {
+									listParagraphs.push(line);
+								}
+							}
+						});
  					}
 				}
 			})

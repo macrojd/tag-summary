@@ -61,7 +61,7 @@ export class SummarySettingTab extends PluginSettingTab {
         );
         new Setting(containerEl)
         .setName("Include Child Items")
-        .setDesc("Include the child items of a list item that contains the tag.")
+        .setDesc("Include the child items of a list.")
         .addToggle((toggle) =>
             toggle
             .setValue(this.plugin.settings.includechildren)

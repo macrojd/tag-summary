@@ -89,7 +89,7 @@ The plugin includes the following three options to configure the style of the su
 There are also two more options to determine how the plugin will process lists. If the options are enabled, the plugin will process each item of a list independently and include in the summary only the items that match the tags. If you want the plugin to process the entire list as a block of text, you can disable this options.
 
 - List Items: Include only the items of a list that contain the tag(s), not the entire list.
-- Include Child Items: Include the child items of a list item that contains the tag(s).
+- Include Child Items: Include the child items of a list.
 
 ## Usage
 
