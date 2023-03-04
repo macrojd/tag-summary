@@ -1,7 +1,7 @@
 {
 	"id": "tag-summary-plugin",
 	"name": "Tag Summary",
-	"version": "2.1.0",
+	"version": "2.1.5",
 	"minAppVersion": "0.12.0",
 	"description": "This plugin creates summaries with paragraphs or blocks of text that share the same tag(s).",
 	"author": "J.D Gauchat",

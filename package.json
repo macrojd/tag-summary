@@ -1,6 +1,6 @@
 {
 	"name": "tag-summary-plugin",
-	"version": "2.1.0",
+	"version": "2.1.5",
 	"description": "This plugin creates summaries with paragraphs or blocks of text that share the same tag(s).",
 	"main": "main.js",
 	"scripts": {
