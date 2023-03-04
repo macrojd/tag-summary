@@ -157,7 +157,7 @@ export default class SummaryPlugin extends Plugin {
 		// Get files content
 		let listContents: [TFile, string][] = await this.readFiles(listFiles);
 
-		// Create summary
+		// Create summary ttt
 		let summary: string = "";
 		listContents.forEach((item) => {
 			// Get files name
