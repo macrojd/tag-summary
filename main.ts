@@ -249,7 +249,7 @@ export default class SummaryPlugin extends Plugin {
 
 				// Add link to original note
 				if (this.settings.includelink) {
-					paragraph = "[[" + filePath + "|🔗]] " + paragraph;
+					paragraph = "[[" + filePath + "|🔗]]" + paragraph;
 				}
 
 				// Insert the text in a callout
