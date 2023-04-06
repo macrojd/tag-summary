@@ -260,7 +260,7 @@ export default class SummaryPlugin extends Plugin {
 					rows.forEach((row) => {
 						callout += "> " + row + "\n";
 					});
-					paragraph = callout + "\n\n---\n\n";
+					paragraph = callout + "\n\n";
 				} else {
 					// No Callout
 					paragraph += "\n\n";
