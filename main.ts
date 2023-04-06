@@ -249,18 +249,18 @@ export default class SummaryPlugin extends Plugin {
 
 				// Add link to original note
 				if (this.settings.includelink) {
-					paragraph = "**Source:** [[" + filePath + "|" + fileName + "]]\n" + paragraph;
+					paragraph = "[[" + filePath + "|🔗]] " + paragraph;
 				}
 
 				// Insert the text in a callout
 				if (this.settings.includecallout) {
 					// Insert the text in a callout box
-					let callout = "> [!" + fileName + "]\n";
+					let callout = "> [!" + fileName + "]+\n";
 					const rows = paragraph.split("\n");
 					rows.forEach((row) => {
 						callout += "> " + row + "\n";
 					});
-					paragraph = callout + "\n\n";
+					paragraph = callout + "\n\n---\n\n";
 				} else {
 					// No Callout
 					paragraph += "\n\n";
