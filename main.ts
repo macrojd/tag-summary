@@ -249,31 +249,31 @@ export default class SummaryPlugin extends Plugin {
 
 				// Add link to original note
 				if (this.settings.includelink) {
-					paragraph = "**Source:** [[" + filePath + "|" + fileName + "]]\n" + paragraph;
+					//paragraph = "**Source:** [[" + filePath + "|" + fileName + "]]\n" + paragraph;
+					let blockLink = paragraph.match(/\^[\p{L}0-9_\-/^]+/gu); 
+            		if (blockLink) { paragraph = "> **[[" + filePath2 + "#" + blockLink + "|" + fileName + "]]**\n" + paragraph; }
+            		else { paragraph = "> **[[" + filePath2 + "|" + fileName + "]]**\n" + paragraph; }
 				}
 
 				// Insert the text in a callout
-				if (this.settings.includecallout) {
-					// Insert the text in a callout box
-					let callout = "> [!" + fileName + "]\n";
-					const rows = paragraph.split("\n");
-					rows.forEach((row) => {
-						callout += "> " + row + "\n";
-					});
-					paragraph = callout + "\n\n";
-				} else {
-					// No Callout
-					paragraph += "\n\n";
-				}
-
-				// Add to Summary
-				summary += paragraph;
+				/*if (this.settings.includecallout) {
+            		let callout = "> [!" + fileName + "]\n";
+            		const rows = paragraph.split("\n");
+            		rows.forEach((row) => {
+              			callout += "> " + row + "\n";
+            		});
+            		paragraph = callout + "\n\n";
+          		} else {*/
+            	paragraph += "\n\n";
+         		//}
+          		summary += paragraph;
 			});
 		});
 
 		// Add Summary
 		if (summary != "") {
 			let summaryContainer = createEl("div");
+			summaryContainer.setAttribute('class', 'summary');
 			await MarkdownRenderer.renderMarkdown(summary, summaryContainer, this.app.workspace.getActiveFile()?.path, null);
 			element.replaceWith(summaryContainer);
 		} else {
