@@ -163,7 +163,7 @@ export default class SummaryPlugin extends Plugin {
 			// Get files name
 			const fileName = item[0].name.replace(/.md$/g, "");
 			const filePath = item[0].path;
-
+			//const filePath2 = item[0].path;
 			// Get paragraphs
 			let listParagraphs: string[] = Array();
 			const blocks = item[1].split(/\n\s*\n/).filter((row) => row.trim().length > 0);
@@ -241,6 +241,20 @@ export default class SummaryPlugin extends Plugin {
 			listParagraphs.forEach((paragraph) => {
 				// Restore newline at the end
 				paragraph += "\n";
+				var regex = new RegExp;
+				//navigator.clipboard.writeText(paragraph);
+				// Check which tag matches in this paragraph.
+				var tagText = new String;
+				var tagSection = null;
+				tags.forEach((tag) => {
+					tagText = tag.replace('#', '\\#');
+					regex = new RegExp(`${tagText}(\\W|$)`, 'g');
+              		if (paragraph.match(regex) != null) {
+              			tagSection = tag
+              		} 
+            	});
+
+				//paragraph += '```button\nname Copy to ' + tagSection.replace('#', '') + ' section\ntype command\naction QuickAdd: Paste Clipboard Text\n```'
 				
 				// Remove tags from blocks
 				if (this.settings.removetags) {
@@ -251,8 +265,8 @@ export default class SummaryPlugin extends Plugin {
 				if (this.settings.includelink) {
 					//paragraph = "**Source:** [[" + filePath + "|" + fileName + "]]\n" + paragraph;
 					let blockLink = paragraph.match(/\^[\p{L}0-9_\-/^]+/gu); 
-            		if (blockLink) { paragraph = "> **[[" + filePath2 + "#" + blockLink + "|" + fileName + "]]**\n" + paragraph; }
-            		else { paragraph = "> **[[" + filePath2 + "|" + fileName + "]]**\n" + paragraph; }
+            		if (blockLink) { paragraph = "> **[[" + filePath + "#" + blockLink + "|" + fileName + "]]**\n" + paragraph; }
+            		else { paragraph = "> **[[" + filePath + "|" + fileName + "]]**\n" + paragraph; }
 				}
 
 				// Insert the text in a callout
