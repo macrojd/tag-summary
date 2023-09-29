@@ -1,6 +1,6 @@
 
 import { Console } from 'console';
-import { Editor, Plugin, MarkdownRenderer, getAllTags, TFile } from 'obsidian';
+import { Editor, Plugin, MarkdownRenderer, getAllTags, TFile, Component } from 'obsidian';
 import { SummarySettingTab } from "./settings";
 import { SummaryModal } from "./summarytags";
 
@@ -25,6 +25,8 @@ export default class SummaryPlugin extends Plugin {
 		// Prepare Settings
 		await this.loadSettings();
 		this.addSettingTab(new SummarySettingTab(this.app, this));
+
+		console.log('Tag summary plugin loaded.');
 
 		// Create command to create a summary
 		this.addCommand({
@@ -119,14 +121,21 @@ export default class SummaryPlugin extends Plugin {
 		const container = createEl("div");
 		container.createEl("span", {
 			attr: { style: 'color: var(--text-error) !important;' },
-			text: "There are no blocks that match the specified tags." 
+			text: "There are no files with blocks that match the specified tags." 
 		});
 		element.replaceWith(container);
 	}
 
 	// Load the blocks and create the summary
 	async createSummary(element: HTMLElement, tags: string[], include: string[], exclude: string[], filePath: string) {
+		const activeFile = await this.app.workspace.getActiveFile();
 		const validTags = tags.concat(include); // All the tags selected by the user
+		const tempComponent = new TempComponent();
+		const summaryContainer = createEl("div");
+		summaryContainer.setAttribute('class', 'summary');
+		//let paragraphContent;
+		//let paragraphContainer = createEl("div");
+
 
 		// Get files
 		let listFiles = this.app.vault.getMarkdownFiles();
@@ -164,6 +173,11 @@ export default class SummaryPlugin extends Plugin {
 			const fileName = item[0].name.replace(/.md$/g, "");
 			const filePath = item[0].path;
 
+			//console.log(activeFile.name + ' : ' + item[0].name)
+			if (activeFile.name == item[0].name) {
+				return;
+			}
+			//const filePath2 = item[0].path;
 			// Get paragraphs
 			let listParagraphs: string[] = Array();
 			const blocks = item[1].split(/\n\s*\n/).filter((row) => row.trim().length > 0);
@@ -212,13 +226,14 @@ export default class SummaryPlugin extends Plugin {
 											listItems.push(itemText);
 											itemText = "";
 										}
-										itemText = itemText.concat(itemLine + "\n");
+										itemText = "" + itemText.concat(itemLine + "\n");// add > here if can't fix
 									} else if (this.settings.includechildren && level > 0 && itemText != "") {
 										itemText = itemText.concat(itemLine + "\n");
 									}
 								});
 							}
 						});
+
 						if (itemText != "") {
 							listItems.push(itemText);
 							itemText = "";
@@ -236,11 +251,25 @@ export default class SummaryPlugin extends Plugin {
  					}
 				}
 			})
-
+			//console.log(listParagraphs)
 			// Process each block of text
-			listParagraphs.forEach((paragraph) => {
+			listParagraphs.forEach(async(paragraph) => {
 				// Restore newline at the end
 				paragraph += "\n";
+				var regex = new RegExp;
+				//navigator.clipboard.writeText(paragraph);
+				// Check which tag matches in this paragraph.
+				var tagText = new String;
+				var tagSection = null;
+				tags.forEach((tag) => {
+					tagText = tag.replace('#', '\\#');
+					regex = new RegExp(`${tagText}(\\W|$)`, 'g');
+              		if (paragraph.match(regex) != null) { 
+              			tagSection = tag
+              		} 
+            	});
+
+				//paragraph += '```button\nname Copy to ' + tagSection.replace('#', '') + ' section\ntype command\naction QuickAdd: Paste Clipboard Text\n```'
 				
 				// Remove tags from blocks
 				if (this.settings.removetags) {
@@ -249,32 +278,46 @@ export default class SummaryPlugin extends Plugin {
 
 				// Add link to original note
 				if (this.settings.includelink) {
-					paragraph = "**Source:** [[" + filePath + "|" + fileName + "]]\n" + paragraph;
+					//paragraph = "**Source:** [[" + filePath + "|" + fileName + "]]\n" + paragraph;
+					let blockLink = paragraph.match(/\^[\p{L}0-9_\-/^]+/gu); 
+            		if (blockLink) { paragraph = "**[[" + filePath + "#" + blockLink + "|" + fileName + "]]**\n" + paragraph; }
+            		else { paragraph = "**[[" + filePath + "|" + fileName + "]]**\n" + paragraph; }
 				}
 
 				// Insert the text in a callout
-				if (this.settings.includecallout) {
-					// Insert the text in a callout box
-					let callout = "> [!" + fileName + "]\n";
-					const rows = paragraph.split("\n");
-					rows.forEach((row) => {
-						callout += "> " + row + "\n";
-					});
-					paragraph = callout + "\n\n";
-				} else {
-					// No Callout
-					paragraph += "\n\n";
-				}
+				/*if (this.settings.includecallout) {
+            		let callout = "> [!" + fileName + "]\n";
+            		const rows = paragraph.split("\n");
+            		rows.forEach((row) => {
+              			callout += "> " + row + "\n";
+            		});
+            		paragraph = callout + "\n\n";
+          		} else {*/
+            	paragraph += "\n\n";
 
-				// Add to Summary
-				summary += paragraph;
+         		//}
+         		//console.log('--------------------\n'+paragraph);
+          		summary += paragraph;
+          		const paragraphContent = createEl("blockquote");
+				paragraphContent.setAttribute('file-source', filePath);
+          		await MarkdownRenderer.renderMarkdown(paragraph, paragraphContent, this.app.workspace.getActiveFile()?.path, tempComponent);
+          		//paragraphContainer.appendChild(paragraphContent);
+          		summaryContainer.appendChild(paragraphContent);
+
+          		//summary += this.transformToBlockquote(paragraph);
+          		//summary += '\n\n';  
+          		//console.log(paragraph)
+          		//console.log(this.transformToBlockquote(paragraph));
 			});
 		});
-
+		//console.log('Summary markdown:')
+		//console.log(summary)
 		// Add Summary
 		if (summary != "") {
-			let summaryContainer = createEl("div");
-			await MarkdownRenderer.renderMarkdown(summary, summaryContainer, this.app.workspace.getActiveFile()?.path, null);
+			//let summaryContainer = createEl("div");
+			//summaryContainer.setAttribute('class', 'summary');
+			
+			//await MarkdownRenderer.renderMarkdown(summary, summaryContainer, this.app.workspace.getActiveFile()?.path, tempComponent);
 			element.replaceWith(summaryContainer);
 		} else {
 			this.createEmptySummary(element);
@@ -311,6 +354,21 @@ export default class SummaryPlugin extends Plugin {
 		return valid;		
 	}
 
+	transformToBlockquote(markdownText) {
+		// Split the input text into lines
+		const lines = markdownText.split('\n');
+
+		// Prepend each line with '> '
+		const blockquoteLines = lines.map(line => '> ' + line);
+		// Prepend each line with '> ' if it does not already start with '>'
+		//const blockquoteLines = lines.map(line => line.trimStart().startsWith('>') ? line : '> ' + line);
+  
+		// Join the lines back together
+		const blockquoteText = blockquoteLines.join('\n');
+
+		return blockquoteText;
+	}
+
 	// Settings
 	async loadSettings() {
 		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
@@ -320,3 +378,7 @@ export default class SummaryPlugin extends Plugin {
 	}	
 }
 
+class TempComponent extends Component {
+	onload() {}
+	onunload() {}
+}
